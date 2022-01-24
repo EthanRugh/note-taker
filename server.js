@@ -14,7 +14,7 @@ app.use(express.static("public"));
 app.get('/api/notes', (req, res) => {
     fs.readFile('./db/db.json', "utf-8", (err, data) => {
         let noteSwitch = JSON.parse(data)
-        if(err) {
+        if (err) {
             throw err;
         }
         return res.json(noteSwitch)
@@ -22,27 +22,34 @@ app.get('/api/notes', (req, res) => {
 });
 
 app.post('/api/notes', (req, res) => {
-    // notesArr = [];
-    // notesArr.push(req.body);
     const { title, text } = req.body;
-    const newSaveNote = {
+    let newSaveNote = {
         title,
-        text,
-        //note_id 
+        text
     };
 
     fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            const parsedNotes = JSON.parse(data);
-            parsedNotes.push(newSaveNote);
-            
-            fs.writeFile('./db/db.json', JSON.stringify(parsedNotes), (writeErr) => 
-                writeErr
-                    ? console.error(writeErr)
-                    : console.log('note saved')
-            );
-            return res.json(parsedNotes);
+        let parsedNotes = JSON.parse(data);
+        let savedNotes = [];
+        parsedNotes.push(newSaveNote);
+        for (let i = 0; i < parsedNotes.length; i++) {
+            let noteId = parsedNotes.id = +i;
+            let newNoteId = {
+                title: parsedNotes[i].title,
+                text: parsedNotes[i].text,
+                id: noteId
+            }
+            savedNotes.push(newNoteId);
+        }
+        console.log(savedNotes);
+
+        fs.writeFile('./db/db.json', JSON.stringify(savedNotes), (writeErr) =>
+            writeErr
+                ? console.error(writeErr)
+                : console.log('note saved')
+        );
+        return res.json(savedNotes);
     });
-    
 });
 
 app.get("/", (req, res) => {
